@@ -1,4 +1,4 @@
-(function(){
+(function($){
 	var me=this;
 
 	me.itemsList = [];
@@ -9,7 +9,8 @@
 	me.dbgStopOnItems    = null; // stop after load items..
 	me.dbgStopOnArticles = null; // stop after load articles..
 
-	me.layout = $(document.body);
+	me.loadRecursive_curPage = 0;
+	me.loadRecursive_perPage = 50;
 
 	me.loadItems=function(from,count,cb)
 	{
@@ -32,13 +33,22 @@
 		);
 	}
 
-	me.loadRecursive_curPage = 0;
-	me.loadRecursive_perPage = 50;
-
 	me.loadRecursive = function(data)
 	{
-		if((typeof(data.list.length) == 'undefined' || data.list.length != 0) && (me.dbgStopOnItems===null || me.dbgStopOnItems>0))
-		{
+		if(
+			(typeof(data) == 'undefined')
+			||
+			(typeof(data.list) == 'undefined')
+		){
+			console.error("Wrong data returned", data);
+			return;
+		}
+
+		if(
+			(typeof(data.list.length) == 'undefined' || data.list.length>0)
+			&&
+			(me.dbgStopOnItems===null || me.dbgStopOnItems>0)
+		){
 			$.each(data.list,function(k,v){
 				me.itemsList.push({id:k,val:v});
 				me.itemsTotal++;
@@ -50,12 +60,13 @@
 		}
 		else
 		{
+			console.groupEnd();
 			console.log('found '+me.itemsTotal+' items');
 			document.getPocketItemsList = me.itemsList;
 			document.getPocketItemsTotal = me.itemsTotal;
 			me.afterLoad();
 		}
-	}
+	};
 
 	me.clearLayout = function()
 	{
@@ -171,6 +182,7 @@
 
 	me.loadArticlesInfo = function()
 	{
+		console.group("Loading Articles Info");
 		me.itemsList = document.getPocketItemsList;
 
 		var countAll = (me.dbgStopOnArticles===null) ? me.itemsList.length : Math.min(me.itemsList.length, me.dbgStopOnArticles);
@@ -217,6 +229,7 @@
 		{
 			if(countCur>=countAll)
 			{
+				console.groupEnd();
 				console.log("Articles are loaded!");
 
 				document.getPocketItemsInfo = me.itemsInfo;
@@ -244,15 +257,30 @@
 			content.append(v.len+"\t"+'<a href="http://getpocket.com/a/read/'+v.id+'" target="_blank">'+v.title+'</a><br />');
 		});
 		me.layout.append(content);
-	}
+	};
 
-	// init
-	if(typeof(document.getPocketItemsTotal)!='undefined')
+	me.init = function()
 	{
-		me.afterLoad();
-	}
-	else
+		console.log('GetPocket List Extension started...');
+		me.layout = $(document.body);
+
+		console.clear();
+		me.clearLayout();
+	};
+
+	me.run = function()
 	{
-		me.loadItems(me.loadRecursive_curPage,me.loadRecursive_perPage,me.loadRecursive);
-	}
-})();
+		if(typeof(document.getPocketItemsTotal)!='undefined')
+		{
+			me.afterLoad();
+		}
+		else
+		{
+			console.group("Loading Articles List");
+			me.loadItems(me.loadRecursive_curPage,me.loadRecursive_perPage,me.loadRecursive);
+		}
+	};
+
+	me.init();
+	me.run();
+})(window.jQuery);
