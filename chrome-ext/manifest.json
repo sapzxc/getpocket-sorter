@@ -3,7 +3,8 @@
 	"version": "0.1",
 	"browser_action": {
 		"default_title": "Click to make list from GetPocket",
-		"default_popup": "click.html"
+		"default_popup": "click.html",
+		"default_icon": "icon.ico"
 	},
 	"web_accessible_resources": ["getpocket.js"],
 	"permissions": [

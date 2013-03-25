@@ -257,6 +257,76 @@
 			content.append(v.len+"\t"+'<a href="http://getpocket.com/a/read/'+v.id+'" target="_blank">'+v.title+'</a><br />');
 		});
 		me.layout.append(content);
+
+		// add tags control
+		me.appendTitle('Add tags to articles');
+		content=$('<a>Add tags with article length (sample: "10-20k chars")</a>');
+		content.attr('href','#').click(function(){
+			me.addTags();
+			return false;
+		});
+		me.layout.append(content);
+	};
+
+	me.addTags = function()
+	{
+		me.itemsInfo = document.getPocketItemsInfo;
+
+		var tags={};
+		var tagsCount=0;
+		$.each(me.itemsInfo,function(k,item){
+			var len=Math.round(item.len/1000);
+			var s=len;
+			     if(len>=  0&&len<=   5){s=   '0-5'}
+			else if(len>   5&&len<=  10){s=  '5-10'}
+			else if(len>  10&&len<=  15){s= '10-15'}
+			else if(len>  15&&len<=  20){s= '15-20'}
+			else if(len>  20&&len<=  25){s= '20-25'}
+			else if(len>  25&&len<=  30){s= '25-30'}
+			else if(len>  30&&len<=  40){s= '30-40'}
+			else if(len>  40&&len<=  50){s= '40-50'}
+			else if(len>  50&&len<=  70){s= '50-70'}
+			else if(len>  70&&len<= 100){s= '70-100'}
+			else if(len> 100           ){s=    '100+'}
+			s+='k chars';
+			if(typeof(tags[s])=='undefined')
+			{
+				tags[s]=[];
+				tagsCount++;
+			}
+			tags[s].push(item.id);
+		});
+
+		// add actual tags
+		if(tagsCount>0)
+		{
+			$.each(tags, function(tagName, ids){
+				content=$('<p></p>');
+				content.html('Adding "'+tagName+'", items: '+ids.length);
+				me.layout.append(content);
+
+				$.post(
+					'http://getpocket.com/a/x/bulkEdit.php',
+					{
+						items:ids,
+						tagType:'tags_add',
+						tags: tagName,
+						formCheck:window.formCheck
+					},
+					function(res){
+						if(typeof(res.status)=='undefined' || !res.status)
+						{
+							console.warn('Error on adding tag ['+tagName+']');
+						}
+					},
+					'json'
+				);
+			});
+		}
+		else
+		{
+			console.log("Nothing to tag.")
+		}
 	};
 
 	me.init = function()
