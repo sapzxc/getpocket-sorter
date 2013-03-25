@@ -1,0 +1,13 @@
+{
+	"name": "GetPocket List Manager",
+	"version": "0.1",
+	"browser_action": {
+		"default_title": "Click to make list from GetPocket",
+		"default_popup": "click.html"
+	},
+	"web_accessible_resources": ["getpocket.js"],
+	"permissions": [
+		"tabs", "http://*/*"
+	],
+	"manifest_version": 2
+}
