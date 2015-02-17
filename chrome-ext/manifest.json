@@ -1,14 +1,24 @@
 {
-	"name": "GetPocket List Manager",
-	"version": "0.1",
+	"manifest_version": 2,
+	"name": "GetPocket List Sorter",
+	"version": "1.0",
+
 	"browser_action": {
-		"default_title": "Click to make list from GetPocket",
-		"default_popup": "click.html",
-		"default_icon": "icon.ico"
+		"default_title": "GetPocket Sorter",
+		"default_icon": {
+			"19": "img/browser-action-icon-19.png",
+			"38": "img/browser-action-icon-38.png"
+		}
 	},
-	"web_accessible_resources": ["getpocket.js"],
-	"permissions": [
-		"tabs", "http://*/*"
+	"background": {
+		"scripts": ["js/jquery.js", "js/shared.js", "js/background.js"]
+	},
+	"permissions": [ "tabs", "cookies",
+		"http://*.getpocket.com/*", "https://*.getpocket.com/*",
+		"https://developer.chrome.com/*"
 	],
-	"manifest_version": 2
+	"content_scripts": [ {
+		"js": [ "js/jquery.js", "js/shared.js" ],
+		"matches": [ "http://*.getpocket.com/*", "https://*.getpocket.com/*" ]
+	} ]
 }
